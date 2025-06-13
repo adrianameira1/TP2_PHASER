@@ -1,0 +1,20 @@
+
+import BootScene from './scenes/BootScene.js';
+import MenuScene from './scenes/MenuScene.js';
+import GameScene from './scenes/GameScene.js';
+import EndScene from './scenes/EndScene.js';
+
+const config = {
+    type: Phaser.AUTO,
+    width: 800,
+    height: 600,
+    physics: {
+        default: 'arcade',
+        arcade: {
+            debug: false
+        }
+    },
+    scene: [BootScene, MenuScene, GameScene, EndScene]
+};
+
+const game = new Phaser.Game(config);

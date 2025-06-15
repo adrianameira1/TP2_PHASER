@@ -1,6 +1,6 @@
-
 import BootScene from './scenes/BootScene.js';
 import MenuScene from './scenes/MenuScene.js';
+import LevelIntroScene from './scenes/LevelIntroScene.js'; //  novo
 import GameScene from './scenes/GameScene.js';
 import EndScene from './scenes/EndScene.js';
 
@@ -14,7 +14,7 @@ const config = {
             debug: false
         }
     },
-    scene: [BootScene, MenuScene, GameScene, EndScene]
+    scene: [BootScene, MenuScene, LevelIntroScene, GameScene, EndScene]
 };
 
 const game = new Phaser.Game(config);

@@ -7,28 +7,24 @@ export default class MenuScene extends Phaser.Scene {
         this.load.image('bg', 'assets/images/menu_bg.png');
         this.load.image('buttonPlay', 'assets/buttons/play_button.png');
         this.load.image('buttonHowTo', 'assets/buttons/howto_button.png');
-        this.load.image('title', 'assets/images/title.png'); // novo título
+        this.load.image('title', 'assets/images/title.png');
     }
 
     create() {
         const width = this.cameras.main.width;
         const height = this.cameras.main.height;
 
-        // Fundo de tela
         this.add.image(width / 2, height / 2, 'bg')
             .setDisplaySize(width, height)
             .setOrigin(0.5);
 
-        // Título com imagem
         this.add.image(width / 2, height / 2 - 160, 'title')
             .setOrigin(0.5)
             .setScale(1);
 
-        // Posição base dos botões
         const buttonYStart = height / 2 + 40;
         const buttonSpacing = 100;
 
-        // Botão PLAY → agora leva para LevelIntroScene
         const playButton = this.add.image(width / 2, buttonYStart, 'buttonPlay')
             .setInteractive()
             .setScale(0.75);
@@ -39,7 +35,6 @@ export default class MenuScene extends Phaser.Scene {
             this.scene.start('LevelIntroScene', { level: 1 });
         });
 
-        // Botão HOW TO PLAY
         const howToButton = this.add.image(width / 2 + 10, buttonYStart + buttonSpacing, 'buttonHowTo')
             .setInteractive()
             .setScale(0.75);
@@ -50,7 +45,6 @@ export default class MenuScene extends Phaser.Scene {
             this.scene.start('HowToScene');
         });
 
-        // Tecla alternativa (opcional)
         this.input.keyboard.once('keydown-SPACE', () => {
             this.scene.start('LevelIntroScene', { level: 1 });
         });

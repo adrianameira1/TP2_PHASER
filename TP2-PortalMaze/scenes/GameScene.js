@@ -16,7 +16,6 @@ export default class GameScene extends Phaser.Scene {
 
     create(data) {
         this.level = data.level || 1;
-
         const tileSize = 16;
 
         this.lights.enable();
@@ -58,13 +57,16 @@ export default class GameScene extends Phaser.Scene {
             const nextLevel = this.level + 1;
             const nextMapPath = `assets/maps/nivel${nextLevel}.json`;
 
-            // Verifica se o próximo mapa existe (forma simples, funciona se estiver pré-carregado)
             fetch(nextMapPath)
                 .then(res => {
                     if (res.ok) {
-                        this.scene.start('LevelIntroScene', { level: nextLevel });
+                        if (nextLevel === 3) {
+                            this.scene.start('level3'); // Vai para o Level3 do Tiled
+                        } else {
+                            this.scene.start('LevelIntroScene', { level: nextLevel });
+                        }
                     } else {
-                        this.scene.start('EndScene'); // fim do jogo
+                        this.scene.start('EndScene');
                     }
                 })
                 .catch(() => this.scene.start('EndScene'));

@@ -6,14 +6,12 @@ export default class GameScene extends Phaser.Scene {
     init(data) {
         this.level = data.level || parseInt(localStorage.getItem('nivel')) || 1;
         localStorage.setItem('nivel', this.level);
-        console.log('[init] Nível atual:', this.level);
     }
 
     preload() {
         this.mapKey = `mapa_nivel${this.level}`;
         const mapPath = `assets/maps/nivel${this.level}.json`;
 
-        console.log('[preload] A carregar mapa:', mapPath, 'com chave:', this.mapKey);
         this.load.tilemapTiledJSON(this.mapKey, mapPath);
 
         if (this.level === 2) {
@@ -74,16 +72,27 @@ export default class GameScene extends Phaser.Scene {
             if (layer3) layer3.setPipeline('Light2D');
         }
 
-        this.player = this.physics.add.sprite(1 * tileSize + tileSize / 2, 13 * tileSize + tileSize / 2, 'player');
-        this.player.setDisplaySize(tileSize, tileSize);
-        this.player.setCollideWorldBounds(true);
-        if (this.level !== 2) this.player.setPipeline('Light2D');
+        // POSICIONAMENTO DO PLAYER E PORTAL
+        if (this.level === 2) {
+            this.player = this.physics.add.sprite(28 * tileSize + tileSize / 2, 1 * tileSize + tileSize / 2, 'player');
+            this.portal = this.physics.add.sprite(1 * tileSize + tileSize / 2, 1 * tileSize + tileSize / 2, 'portal');
+        } else {
+            this.player = this.physics.add.sprite(1 * tileSize + tileSize / 2, 13 * tileSize + tileSize / 2, 'player');
+            this.portal = this.physics.add.sprite(18 * tileSize + tileSize / 2, 1 * tileSize + tileSize / 2, 'portal');
+        }
 
-        this.portal = this.physics.add.sprite(18 * tileSize + tileSize / 2, 1 * tileSize + tileSize / 2, 'portal');
+        if (this.level === 2) {
+            this.player.setDisplaySize(tileSize + 6, tileSize + 6); // aumenta só um pouco
+        } else {
+            this.player.setDisplaySize(tileSize, tileSize);
+        }
+
+        this.player.setCollideWorldBounds(true);
         this.portal.setDisplaySize(28, 28);
-        if (this.level !== 2) this.portal.setPipeline('Light2D');
 
         if (this.level !== 2) {
+            this.player.setPipeline('Light2D');
+            this.portal.setPipeline('Light2D');
             this.playerLight = this.lights.addLight(this.player.x, this.player.y, 80).setColor(0xffffff).setIntensity(2.2);
         }
 
@@ -91,19 +100,18 @@ export default class GameScene extends Phaser.Scene {
         this.physics.add.collider(this.player, layer2);
         if (layer3) this.physics.add.collider(this.player, layer3);
 
-        // GRUPOS E HUD (somente chaves)
-        this.moedas = this.physics.add.group(); // ainda carregadas, mas ignoradas
+        // HUD e objetos
+        this.moedas = this.physics.add.group();
         this.chavesOuro = this.physics.add.group();
-        this.chavesPrata = this.physics.add.group();
-
         this.contadorChaves = 0;
+        this.contadorMoedas = 0;
 
-        this.textoChaves = this.add.text(80, 60, '🔑 Chaves: 0', {
-            fontSize: '12px', fill: '#fff'
-        }).setScrollFactor(0).setDepth(10);
+        this.textoChaves = this.add.text(150, 100, '🔑 Chaves: 0', { fontSize: '12px', fill: '#fff' }).setScrollFactor(0).setDepth(10);
+        this.textoMoedas = this.add.text(250, 100, '🪙 Moedas: 0', { fontSize: '12px', fill: '#fff' }).setScrollFactor(0).setDepth(10);
 
         if (this.level === 2) {
             const objetosLayer = map.getObjectLayer('Objetos');
+            
             if (objetosLayer) {
                 objetosLayer.objects.forEach(obj => {
                     const { name, x, y } = obj;
@@ -111,31 +119,108 @@ export default class GameScene extends Phaser.Scene {
                     const posY = y - tileSize / 2;
                     let sprite;
 
+                    const portasCoords = {
+                        'chave_prata1': [{ x: 19, y: 20 }, { x: 19, y: 21 }],
+                        'chave_prata2': [{ x: 2, y: 18 }, { x: 3, y: 18 }],
+                        'chave_prata3': [{ x: 8, y: 11 }, { x: 8, y: 12 }],
+                        'chave_dourada': [{ x: 10, y: 7 }, { x: 11, y: 7 }]
+                    };
+
+                    if (portasCoords[name]) {
+                        sprite = this.physics.add.sprite(posX, posY, name.includes('prata') ? 'silver_key' : 'key').play(name.includes('prata') ? 'silver_key' : 'key');
+                        this.physics.add.overlap(this.player, sprite, () => {
+                            sprite.destroy();
+                            this.contadorChaves++;
+                            this.textoChaves.setText(`🔑 Chaves: ${this.contadorChaves}`);
+                            portasCoords[name].forEach(coord => layer2.removeTileAt(coord.x, coord.y));
+                        });
+                        return;
+                    }
+
+                    this.esqueletos = [];
+
                     switch (name) {
-                        case 'moeda': sprite = this.moedas.create(posX, posY, 'coin').play('coin'); break;
-                        case 'chave': sprite = this.chavesOuro.create(posX, posY, 'key').play('key'); break;
-                        case 'chave_prata': sprite = this.chavesPrata.create(posX, posY, 'silver_key').play('silver_key'); break;
-                        case 'bau': sprite = this.add.sprite(posX, posY, 'chest_idle').play('chest_idle'); break;
-                        case 'bau_aberto': sprite = this.add.sprite(posX, posY, 'chest_open').play('chest_open'); break;
-                        case 'vampiro': sprite = this.add.sprite(posX, posY, 'vampire').play('vampire'); break;
-                        case 'esqueleto': sprite = this.add.sprite(posX, posY, 'skeleton').play('skeleton'); break;
-                        case 'pico': sprite = this.add.sprite(posX, posY, 'peaks').play('peaks'); break;
+                        case 'moeda':
+                            sprite = this.moedas.create(posX, posY, 'coin').play('coin'); break;
+                        case 'bau':
+                            sprite = this.physics.add.sprite(posX, posY, 'chest_idle').play('chest_idle');
+                            sprite.setDepth(1);
+                            sprite.bauAberto = false;
+
+                            this.physics.add.overlap(this.player, sprite, () => {
+                                if (!sprite.bauAberto) {
+                                    sprite.bauAberto = true;
+                                    sprite.play('chest_open');
+
+                                    this.contadorMoedas += 30;
+                                    this.textoMoedas.setText(`🪙 Moedas: ${this.contadorMoedas}`);
+
+                                    const textoBonus = this.add.text(sprite.x, sprite.y - 10, '+30', {
+                                        fontSize: '12px',
+                                        fill: '#ff0',
+                                        stroke: '#000',
+                                        strokeThickness: 2
+                                    }).setOrigin(0.5).setDepth(10);
+
+                                    this.tweens.add({
+                                        targets: textoBonus,
+                                        y: textoBonus.y - 20,
+                                        alpha: 0,
+                                        duration: 800,
+                                        onComplete: () => textoBonus.destroy()
+                                    });
+                                }
+                            });
+                            break;
+
+                        case 'bau_aberto':
+                            sprite = this.add.sprite(posX, posY, 'chest_open').play('chest_open'); break;
+                        case 'vampiro1':
+                        case 'vampiro2':
+                            sprite = this.physics.add.sprite(posX, posY, 'vampire').play('vampire');
+                            sprite.setVelocityX(40);
+                            sprite.setCollideWorldBounds(true);
+                            sprite.setBounce(1, 0);
+                            this.physics.add.collider(sprite, layer2);
+                            this.esqueletos.push({ sprite, axis: 'x', direction: 1 }); // reutiliza o mesmo array
+                            break;
+
+                        case 'esqueleto1':
+                            sprite = this.physics.add.sprite(posX, posY, 'skeleton').play('skeleton');
+                            sprite.setVelocityX(40);
+                            sprite.setCollideWorldBounds(true);
+                            sprite.setBounce(1, 0);
+                            this.physics.add.collider(sprite, layer2);
+                            this.esqueletos.push({ sprite, axis: 'x', direction: 1 });
+                            break;
+                        case 'esqueleto2':
+                            sprite = this.physics.add.sprite(posX, posY, 'skeleton').play('skeleton');
+                            sprite.setVelocityX(-40);
+                            sprite.setCollideWorldBounds(true);
+                            sprite.setBounce(1, 0);
+                            this.physics.add.collider(sprite, layer2);
+                            this.esqueletos.push({ sprite, axis: 'x', direction: -1 });
+                            break;
+                        case 'esqueleto3':
+                            sprite = this.physics.add.sprite(posX, posY, 'skeleton').play('skeleton');
+                            sprite.setVelocityY(40);
+                            sprite.setCollideWorldBounds(true);
+                            sprite.setBounce(0, 1);
+                            this.physics.add.collider(sprite, layer2);
+                            this.esqueletos.push({ sprite, axis: 'y', direction: 1 });
+                            break;
+
+                        case 'pico':
+                            sprite = this.add.sprite(posX, posY, 'peaks').play('peaks'); break;
                     }
 
                     if (sprite) sprite.setDepth(1);
                 });
 
-                // COLETAR chaves (ouro e prata → mesmas regras)
-                this.physics.add.overlap(this.player, this.chavesOuro, (player, chave) => {
-                    chave.destroy();
-                    this.contadorChaves++;
-                    this.textoChaves.setText(`🔑 Chaves: ${this.contadorChaves}`);
-                });
-
-                this.physics.add.overlap(this.player, this.chavesPrata, (player, chave) => {
-                    chave.destroy();
-                    this.contadorChaves++;
-                    this.textoChaves.setText(`🔑 Chaves: ${this.contadorChaves}`);
+                this.physics.add.overlap(this.player, this.moedas, (player, moeda) => {
+                    moeda.destroy();
+                    this.contadorMoedas++;
+                    this.textoMoedas.setText(`🪙 Moedas: ${this.contadorMoedas}`);
                 });
             }
         }
@@ -147,13 +232,21 @@ export default class GameScene extends Phaser.Scene {
                 .catch(() => this.scene.start('EndScene'));
         });
 
-        this.cursors = this.input.keyboard.createCursorKeys();
-        this.cameras.main.startFollow(this.player);
-        this.cameras.main.setZoom(this.level === 2 ? 1.2 : 2.2);
+        if (this.level === 2) {
+            this.cameras.main.setZoom(1.5);
+            this.cameras.main.setScroll(0, 0);
+        } else {
+            this.cameras.main.startFollow(this.player);
+            this.cameras.main.setZoom(2.2);
+        }
+
         this.cameras.main.setBounds(0, 0, map.widthInPixels, map.heightInPixels);
+        this.cursors = this.input.keyboard.createCursorKeys();
     }
 
     update() {
+        if (!this.cursors) return;
+
         const speed = 110;
         this.player.setVelocity(0);
 
@@ -167,5 +260,25 @@ export default class GameScene extends Phaser.Scene {
 
         if (this.cursors.up.isDown) this.player.setVelocityY(-speed);
         else if (this.cursors.down.isDown) this.player.setVelocityY(speed);
+
+        // No final do update()
+        if (this.level === 2 && this.esqueletos) {
+            this.esqueletos.forEach(e => {
+                if (e.axis === 'x') {
+                    if (e.sprite.body.blocked.right) {
+                        e.sprite.setVelocityX(-40);
+                    } else if (e.sprite.body.blocked.left) {
+                        e.sprite.setVelocityX(40);
+                    }
+                } else if (e.axis === 'y') {
+                    if (e.sprite.body.blocked.down) {
+                        e.sprite.setVelocityY(-40);
+                    } else if (e.sprite.body.blocked.up) {
+                        e.sprite.setVelocityY(40);
+                    }
+                }
+            });
+        }
+
     }
 }

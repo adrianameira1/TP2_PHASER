@@ -12,6 +12,9 @@ export default class LevelIntroScene extends Phaser.Scene {
     create(data) {
         this.level = data.level || 1;
 
+        // ✅ Salva o nível no localStorage
+        localStorage.setItem('nivel', this.level);
+
         const width = this.cameras.main.width;
         const height = this.cameras.main.height;
 
@@ -32,6 +35,8 @@ export default class LevelIntroScene extends Phaser.Scene {
 
         okButton.on('pointerover', () => okButton.setScale(hoverScale));
         okButton.on('pointerout', () => okButton.setScale(baseScale));
+
+        // ✅ Passa o nível corretamente à GameScene
         okButton.on('pointerdown', () => {
             this.scene.start('GameScene', { level: this.level });
         });

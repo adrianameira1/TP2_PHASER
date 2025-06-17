@@ -105,13 +105,15 @@ export default class GameScene extends Phaser.Scene {
         this.chavesOuro = this.physics.add.group();
         this.contadorChaves = 0;
         this.contadorMoedas = 0;
+        this.esqueletos = [];
+        this.picos = [];
+
 
         this.textoChaves = this.add.text(150, 100, '🔑 Chaves: 0', { fontSize: '12px', fill: '#fff' }).setScrollFactor(0).setDepth(10);
         this.textoMoedas = this.add.text(250, 100, '🪙 Moedas: 0', { fontSize: '12px', fill: '#fff' }).setScrollFactor(0).setDepth(10);
 
         if (this.level === 2) {
             const objetosLayer = map.getObjectLayer('Objetos');
-            
             if (objetosLayer) {
                 objetosLayer.objects.forEach(obj => {
                     const { name, x, y } = obj;
@@ -134,14 +136,15 @@ export default class GameScene extends Phaser.Scene {
                             this.textoChaves.setText(`🔑 Chaves: ${this.contadorChaves}`);
                             portasCoords[name].forEach(coord => layer2.removeTileAt(coord.x, coord.y));
                         });
+                        sprite.setDepth(1);
                         return;
                     }
 
-                    this.esqueletos = [];
-
                     switch (name) {
                         case 'moeda':
-                            sprite = this.moedas.create(posX, posY, 'coin').play('coin'); break;
+                            sprite = this.moedas.create(posX, posY, 'coin').play('coin');
+                            break;
+
                         case 'bau':
                             sprite = this.physics.add.sprite(posX, posY, 'chest_idle').play('chest_idle');
                             sprite.setDepth(1);
@@ -174,7 +177,9 @@ export default class GameScene extends Phaser.Scene {
                             break;
 
                         case 'bau_aberto':
-                            sprite = this.add.sprite(posX, posY, 'chest_open').play('chest_open'); break;
+                            sprite = this.add.sprite(posX, posY, 'chest_open').play('chest_open');
+                            break;
+
                         case 'vampiro1':
                         case 'vampiro2':
                             sprite = this.physics.add.sprite(posX, posY, 'vampire').play('vampire');
@@ -182,7 +187,11 @@ export default class GameScene extends Phaser.Scene {
                             sprite.setCollideWorldBounds(true);
                             sprite.setBounce(1, 0);
                             this.physics.add.collider(sprite, layer2);
-                            this.esqueletos.push({ sprite, axis: 'x', direction: 1 }); // reutiliza o mesmo array
+                            this.esqueletos.push({ sprite, axis: 'x', direction: 1 });
+
+                            this.physics.add.overlap(this.player, sprite, () => {
+                                this.scene.start('DeathScene', { cause: 'enemy' });
+                            });
                             break;
 
                         case 'esqueleto1':
@@ -192,7 +201,12 @@ export default class GameScene extends Phaser.Scene {
                             sprite.setBounce(1, 0);
                             this.physics.add.collider(sprite, layer2);
                             this.esqueletos.push({ sprite, axis: 'x', direction: 1 });
+
+                            this.physics.add.overlap(this.player, sprite, () => {
+                                this.scene.start('DeathScene', { cause: 'enemy' });
+                            });
                             break;
+
                         case 'esqueleto2':
                             sprite = this.physics.add.sprite(posX, posY, 'skeleton').play('skeleton');
                             sprite.setVelocityX(-40);
@@ -200,7 +214,12 @@ export default class GameScene extends Phaser.Scene {
                             sprite.setBounce(1, 0);
                             this.physics.add.collider(sprite, layer2);
                             this.esqueletos.push({ sprite, axis: 'x', direction: -1 });
+
+                            this.physics.add.overlap(this.player, sprite, () => {
+                                this.scene.start('DeathScene', { cause: 'enemy' });
+                            });
                             break;
+
                         case 'esqueleto3':
                             sprite = this.physics.add.sprite(posX, posY, 'skeleton').play('skeleton');
                             sprite.setVelocityY(40);
@@ -208,10 +227,26 @@ export default class GameScene extends Phaser.Scene {
                             sprite.setBounce(0, 1);
                             this.physics.add.collider(sprite, layer2);
                             this.esqueletos.push({ sprite, axis: 'y', direction: 1 });
+
+                            this.physics.add.overlap(this.player, sprite, () => {
+                                this.scene.start('DeathScene', { cause: 'enemy' });
+                            });
                             break;
 
                         case 'pico':
-                            sprite = this.add.sprite(posX, posY, 'peaks').play('peaks'); break;
+                            sprite = this.physics.add.sprite(posX, posY, 'peaks').play('peaks');
+                            sprite.body.setAllowGravity(false);
+                            sprite.body.setImmovable(true);
+                            this.picos.push(sprite);
+
+                            this.physics.add.overlap(this.player, sprite, (player, pico) => {
+                                const picoErguido = pico.anims.currentFrame.index === 4;
+                                const jogadorPorCima = player.y > pico.y + pico.displayHeight / 2 - 2;
+                                if (picoErguido && jogadorPorCima) {
+                                    this.scene.start('DeathScene', { cause: 'spike' });
+                                }
+                            });
+                            break;
                     }
 
                     if (sprite) sprite.setDepth(1);
@@ -223,14 +258,21 @@ export default class GameScene extends Phaser.Scene {
                     this.textoMoedas.setText(`🪙 Moedas: ${this.contadorMoedas}`);
                 });
             }
+        
+            
         }
 
-        this.physics.add.overlap(this.player, this.portal, () => {
-            const nextLevel = this.level + 1;
-            fetch(`assets/maps/nivel${nextLevel}.json`)
-                .then(res => res.ok ? this.scene.start('LevelIntroScene', { level: nextLevel }) : this.scene.start('EndScene'))
-                .catch(() => this.scene.start('EndScene'));
+       this.physics.add.overlap(this.player, this.portal, () => {
+            const moedasRestantes = this.moedas.countActive(true);
+            if (moedasRestantes === 0) {
+                const nextLevel = this.level + 1;
+                fetch(`assets/maps/nivel${nextLevel}.json`)
+                    .then(res => res.ok ? this.scene.start('LevelIntroScene', { level: nextLevel }) : this.scene.start('EndScene'))
+                    .catch(() => this.scene.start('EndScene'));
+            }
         });
+
+
 
         if (this.level === 2) {
             this.cameras.main.setZoom(1.5);
@@ -261,7 +303,6 @@ export default class GameScene extends Phaser.Scene {
         if (this.cursors.up.isDown) this.player.setVelocityY(-speed);
         else if (this.cursors.down.isDown) this.player.setVelocityY(speed);
 
-        // No final do update()
         if (this.level === 2 && this.esqueletos) {
             this.esqueletos.forEach(e => {
                 if (e.axis === 'x') {
@@ -279,6 +320,5 @@ export default class GameScene extends Phaser.Scene {
                 }
             });
         }
-
     }
 }

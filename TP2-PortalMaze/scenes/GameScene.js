@@ -32,11 +32,18 @@ export default class GameScene extends Phaser.Scene {
 
         this.load.image('player', 'assets/sprites/player.png');
         this.load.image('portal', 'assets/sprites/portal.png');
+        this.load.audio('musicaFundo', 'assets/audio/dungeon_song.mp3');
+        this.load.audio('coinSound', 'assets/audio/coin_sound1.mp3');
+
+
     }
 
     create() {
         const tileSize = 16;
         const map = this.make.tilemap({ key: this.mapKey });
+        this.coinSound = this.sound.add('coinSound', { volume: 0.5 });
+
+
 
         if (this.level === 2) {
             this.anims.create({ key: 'coin', frames: this.anims.generateFrameNumbers('coin', { start: 0, end: 3 }), frameRate: 10, repeat: -1 });
@@ -148,6 +155,7 @@ export default class GameScene extends Phaser.Scene {
                                 if (!sprite.bauAberto) {
                                     sprite.bauAberto = true;
                                     sprite.play('chest_open');
+                                     this.coinSound.play(); 
                                     this.contadorMoedas += 30;
                                     this.textoMoedas.setText(`🪙 Moedas: ${this.contadorMoedas}`);
                                     const textoBonus = this.add.text(sprite.x, sprite.y - 10, '+30', {
@@ -177,7 +185,7 @@ export default class GameScene extends Phaser.Scene {
                             sprite.setVelocityX(40);
                             sprite.setCollideWorldBounds(true);
                             sprite.setBounce(1, 0);
-                            sprite.setSize(12, 12).setOffset(2, 2); // 👈 Hitbox ajustada
+                            sprite.setSize(12, 12).setOffset(2, 2); //  Hitbox ajustada
                             this.physics.add.collider(sprite, layer2);
                             this.esqueletos.push({ sprite, axis: 'x', direction: 1 });
                             this.physics.add.overlap(this.player, sprite, () => {
@@ -190,7 +198,7 @@ export default class GameScene extends Phaser.Scene {
                             sprite.setVelocityX(40);
                             sprite.setCollideWorldBounds(true);
                             sprite.setBounce(1, 0);
-                            sprite.setSize(12, 12).setOffset(2, 2); // 👈 Hitbox ajustada
+                            sprite.setSize(12, 12).setOffset(2, 2); //  Hitbox ajustada
                             this.physics.add.collider(sprite, layer2);
                             this.esqueletos.push({ sprite, axis: 'x', direction: 1 });
                             this.physics.add.overlap(this.player, sprite, () => {
@@ -203,7 +211,7 @@ export default class GameScene extends Phaser.Scene {
                             sprite.setVelocityX(-40);
                             sprite.setCollideWorldBounds(true);
                             sprite.setBounce(1, 0);
-                            sprite.setSize(12, 12).setOffset(2, 2); // 👈 Hitbox ajustada
+                            sprite.setSize(12, 12).setOffset(2, 2); //  Hitbox ajustada
                             this.physics.add.collider(sprite, layer2);
                             this.esqueletos.push({ sprite, axis: 'x', direction: -1 });
                             this.physics.add.overlap(this.player, sprite, () => {
@@ -216,7 +224,7 @@ export default class GameScene extends Phaser.Scene {
                             sprite.setVelocityY(40);
                             sprite.setCollideWorldBounds(true);
                             sprite.setBounce(0, 1);
-                            sprite.setSize(12, 12).setOffset(2, 2); // 👈 Hitbox ajustada
+                            sprite.setSize(12, 12).setOffset(2, 2); //  Hitbox ajustada
                             this.physics.add.collider(sprite, layer2);
                             this.esqueletos.push({ sprite, axis: 'y', direction: 1 });
                             this.physics.add.overlap(this.player, sprite, () => {
@@ -242,12 +250,13 @@ export default class GameScene extends Phaser.Scene {
                     pico.touching = true;
                 });
 
-
                 this.physics.add.overlap(this.player, this.moedas, (player, moeda) => {
+                    this.coinSound.play();
                     moeda.destroy();
                     this.contadorMoedas++;
                     this.textoMoedas.setText(`🪙 Moedas: ${this.contadorMoedas}`);
                 });
+
             }
         }
 

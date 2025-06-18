@@ -8,12 +8,31 @@ export default class DeathScene extends Phaser.Scene {
         this.load.image('death_enemy', 'assets/rules/GameOverEnemy.png');
         this.load.image('level2_bg', 'assets/maps/nivel_2.png');
         this.load.image('okButton', 'assets/buttons/ok_button.png');
+        this.load.audio('gameOverSong', 'assets/audio/GameOver.mp3');
+
     }
 
     create(data) {
         const { cause } = data;
         const width = this.cameras.main.width;
         const height = this.cameras.main.height;
+
+            // Para a música da fase (dungeon_song)
+        const musica = this.sound.get('musicaFundo');
+        if (musica) {
+            musica.stop();
+        }
+
+    const musicaAtual = this.sound.get('gameOverSong');
+    if (!musicaAtual || !musicaAtual.isPlaying) {
+        if (!musicaAtual) {
+            this.sound.add('gameOverSong', { loop: false, volume: 0.6 }).play();
+        } else {
+            musicaAtual.play(); // Se já existia, mas estava parada
+        }
+    }
+
+
 
         // Fundo escurecido do nível
         this.add.image(width / 2, height / 2, 'level2_bg')
@@ -51,8 +70,24 @@ export default class DeathScene extends Phaser.Scene {
         okButton.on('pointerover', () => okButton.setScale(hoverScale));
         okButton.on('pointerout', () => okButton.setScale(baseScale));
 
-        okButton.on('pointerdown', () => {
-            this.scene.start('GameScene', { level: 1 }); // Reinicia no nível 1
-        });
+     okButton.on('pointerdown', () => {
+        // Para a música de Game Over
+        const over = this.sound.get('gameOverSong');
+        if (over) {
+            over.stop();
+        }
+
+        // Toca imediatamente a música de fase
+        if (!this.sound.get('musicaFundo')) {
+            this.sound.add('musicaFundo', { loop: true, volume: 0.5 }).play();
+        } else if (!this.sound.get('musicaFundo').isPlaying) {
+            this.sound.get('musicaFundo').play();
+        }
+
+        // Inicia o jogo
+        this.scene.start('GameScene', { level: 1 });
+    });
+
+
     }
 }

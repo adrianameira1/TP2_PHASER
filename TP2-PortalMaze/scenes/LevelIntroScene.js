@@ -11,6 +11,9 @@ export default class LevelIntroScene extends Phaser.Scene {
         this.load.image('level2_bg', 'assets/maps/nivel_2.png');
         this.load.image('level3_bg', 'assets/maps/nivel_3.png'); // novo fundo
         this.load.image('okButton', 'assets/buttons/ok_button.png');
+
+        this.load.audio('musicaFundo', 'assets/audio/dungeon_song.mp3');
+
     }
 
     create(data) {
@@ -50,12 +53,18 @@ export default class LevelIntroScene extends Phaser.Scene {
         okButton.on('pointerover', () => okButton.setScale(hoverScale));
         okButton.on('pointerout', () => okButton.setScale(baseScale));
 
-        okButton.on('pointerdown', () => {
+       okButton.on('pointerdown', () => {
+            
+            if (!this.sound.get('musicaFundo')) {
+                this.sound.add('musicaFundo', { loop: true, volume: 0.5 }).play();
+            }
+
             if (this.level === 3) {
                 this.scene.start('level3');
             } else {
                 this.scene.start('GameScene', { level: this.level });
             }
         });
+
     }
 }

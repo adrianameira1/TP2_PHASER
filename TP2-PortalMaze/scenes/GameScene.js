@@ -81,12 +81,7 @@ export default class GameScene extends Phaser.Scene {
             this.portal = this.physics.add.sprite(18 * tileSize + tileSize / 2, 1 * tileSize + tileSize / 2, 'portal');
         }
 
-        if (this.level === 2) {
-            this.player.setDisplaySize(tileSize + 6, tileSize + 6); // aumenta só um pouco
-        } else {
-            this.player.setDisplaySize(tileSize, tileSize);
-        }
-
+        this.player.setDisplaySize(this.level === 2 ? tileSize + 6 : tileSize, this.level === 2 ? tileSize + 6 : tileSize);
         this.player.setCollideWorldBounds(true);
         this.portal.setDisplaySize(28, 28);
 
@@ -100,14 +95,13 @@ export default class GameScene extends Phaser.Scene {
         this.physics.add.collider(this.player, layer2);
         if (layer3) this.physics.add.collider(this.player, layer3);
 
-        // HUD e objetos
         this.moedas = this.physics.add.group();
         this.chavesOuro = this.physics.add.group();
         this.contadorChaves = 0;
         this.contadorMoedas = 0;
         this.esqueletos = [];
         this.picos = [];
-
+        this.picoTimers = new Map(); // [MODIFICAÇÃO]
 
         this.textoChaves = this.add.text(150, 100, '🔑 Chaves: 0', { fontSize: '12px', fill: '#fff' }).setScrollFactor(0).setDepth(10);
         this.textoMoedas = this.add.text(250, 100, '🪙 Moedas: 0', { fontSize: '12px', fill: '#fff' }).setScrollFactor(0).setDepth(10);
@@ -154,17 +148,14 @@ export default class GameScene extends Phaser.Scene {
                                 if (!sprite.bauAberto) {
                                     sprite.bauAberto = true;
                                     sprite.play('chest_open');
-
                                     this.contadorMoedas += 30;
                                     this.textoMoedas.setText(`🪙 Moedas: ${this.contadorMoedas}`);
-
                                     const textoBonus = this.add.text(sprite.x, sprite.y - 10, '+30', {
                                         fontSize: '12px',
                                         fill: '#ff0',
                                         stroke: '#000',
                                         strokeThickness: 2
                                     }).setOrigin(0.5).setDepth(10);
-
                                     this.tweens.add({
                                         targets: textoBonus,
                                         y: textoBonus.y - 20,
@@ -186,9 +177,9 @@ export default class GameScene extends Phaser.Scene {
                             sprite.setVelocityX(40);
                             sprite.setCollideWorldBounds(true);
                             sprite.setBounce(1, 0);
+                            sprite.setSize(12, 12).setOffset(2, 2); // 👈 Hitbox ajustada
                             this.physics.add.collider(sprite, layer2);
                             this.esqueletos.push({ sprite, axis: 'x', direction: 1 });
-
                             this.physics.add.overlap(this.player, sprite, () => {
                                 this.scene.start('DeathScene', { cause: 'enemy' });
                             });
@@ -199,9 +190,9 @@ export default class GameScene extends Phaser.Scene {
                             sprite.setVelocityX(40);
                             sprite.setCollideWorldBounds(true);
                             sprite.setBounce(1, 0);
+                            sprite.setSize(12, 12).setOffset(2, 2); // 👈 Hitbox ajustada
                             this.physics.add.collider(sprite, layer2);
                             this.esqueletos.push({ sprite, axis: 'x', direction: 1 });
-
                             this.physics.add.overlap(this.player, sprite, () => {
                                 this.scene.start('DeathScene', { cause: 'enemy' });
                             });
@@ -212,9 +203,9 @@ export default class GameScene extends Phaser.Scene {
                             sprite.setVelocityX(-40);
                             sprite.setCollideWorldBounds(true);
                             sprite.setBounce(1, 0);
+                            sprite.setSize(12, 12).setOffset(2, 2); // 👈 Hitbox ajustada
                             this.physics.add.collider(sprite, layer2);
                             this.esqueletos.push({ sprite, axis: 'x', direction: -1 });
-
                             this.physics.add.overlap(this.player, sprite, () => {
                                 this.scene.start('DeathScene', { cause: 'enemy' });
                             });
@@ -225,32 +216,32 @@ export default class GameScene extends Phaser.Scene {
                             sprite.setVelocityY(40);
                             sprite.setCollideWorldBounds(true);
                             sprite.setBounce(0, 1);
+                            sprite.setSize(12, 12).setOffset(2, 2); // 👈 Hitbox ajustada
                             this.physics.add.collider(sprite, layer2);
                             this.esqueletos.push({ sprite, axis: 'y', direction: 1 });
-
                             this.physics.add.overlap(this.player, sprite, () => {
                                 this.scene.start('DeathScene', { cause: 'enemy' });
                             });
                             break;
 
-                        case 'pico':
-                            sprite = this.physics.add.sprite(posX, posY, 'peaks').play('peaks');
-                            sprite.body.setAllowGravity(false);
-                            sprite.body.setImmovable(true);
-                            this.picos.push(sprite);
+                            case 'pico':
+                                sprite = this.physics.add.sprite(posX, posY, 'peaks').play('peaks');
+                                sprite.body.setAllowGravity(false);
+                                sprite.body.setImmovable(true);
+                                this.picos.push(sprite);
+                                this.picoTimers.set(sprite, null);
 
-                            this.physics.add.overlap(this.player, sprite, (player, pico) => {
-                                const picoErguido = pico.anims.currentFrame.index === 4;
-                                const jogadorPorCima = player.y > pico.y + pico.displayHeight / 2 - 2;
-                                if (picoErguido && jogadorPorCima) {
-                                    this.scene.start('DeathScene', { cause: 'spike' });
-                                }
-                            });
-                            break;
-                    }
+                                break;
+
+                            }
 
                     if (sprite) sprite.setDepth(1);
                 });
+
+                this.physics.add.overlap(this.player, this.picos, (player, pico) => {
+                    pico.touching = true;
+                });
+
 
                 this.physics.add.overlap(this.player, this.moedas, (player, moeda) => {
                     moeda.destroy();
@@ -258,17 +249,15 @@ export default class GameScene extends Phaser.Scene {
                     this.textoMoedas.setText(`🪙 Moedas: ${this.contadorMoedas}`);
                 });
             }
-        
-            
         }
 
-      this.physics.add.overlap(this.player, this.portal, () => {
+        this.physics.add.overlap(this.player, this.portal, () => {
             const moedasRestantes = this.moedas.countActive(true);
             if (moedasRestantes === 0) {
                 const nextLevel = this.level + 1;
 
                 if (nextLevel === 3) {
-                    this.scene.start('LevelIntroScene', { level: 3 }); // Vai mostrar o how-to-play do level 3
+                    this.scene.start('LevelIntroScene', { level: 3 });
                 } else {
                     fetch(`assets/maps/nivel${nextLevel}.json`)
                         .then(res => res.ok ? this.scene.start('LevelIntroScene', { level: nextLevel }) : this.scene.start('EndScene'))
@@ -276,10 +265,6 @@ export default class GameScene extends Phaser.Scene {
                 }
             }
         });
-
-
-
-
 
         if (this.level === 2) {
             this.cameras.main.setZoom(1.5);
@@ -293,7 +278,7 @@ export default class GameScene extends Phaser.Scene {
         this.cursors = this.input.keyboard.createCursorKeys();
     }
 
-    update() {
+   update() {
         if (!this.cursors) return;
 
         const speed = 110;
@@ -310,6 +295,34 @@ export default class GameScene extends Phaser.Scene {
         if (this.cursors.up.isDown) this.player.setVelocityY(-speed);
         else if (this.cursors.down.isDown) this.player.setVelocityY(speed);
 
+        // Verificação de morte por pico
+        this.picos.forEach(pico => {
+            const tileSize = 16;
+
+            const playerTileX = Math.floor(this.player.x / tileSize);
+            const playerTileY = Math.floor(this.player.y / tileSize);
+            const picoTileX = Math.floor(pico.x / tileSize);
+            const picoTileY = Math.floor(pico.y / tileSize);
+
+            const mesmaTile = playerTileX === picoTileX && playerTileY === picoTileY;
+
+            if (!mesmaTile) {
+                this.picoTimers.set(pico, null); // saiu da tile
+                return;
+            }
+
+            const agora = this.time.now;
+            const inicio = this.picoTimers.get(pico);
+
+            if (inicio === null || inicio === undefined) {
+                this.picoTimers.set(pico, agora);
+            } else if (agora - inicio >= 500) {
+                this.scene.start('DeathScene', { cause: 'spike' });
+            }
+        });
+
+
+        // Movimento dos esqueletos
         if (this.level === 2 && this.esqueletos) {
             this.esqueletos.forEach(e => {
                 if (e.axis === 'x') {

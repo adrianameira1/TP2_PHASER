@@ -1,13 +1,3 @@
-(function(name,data){
- if(typeof onTileMapLoaded === 'undefined') {
-  if(typeof TileMaps === 'undefined') TileMaps = {};
-  TileMaps[name] = data;
- } else {
-  onTileMapLoaded(name,data);
- }
- if(typeof module === 'object' && module && module.exports) {
-  module.exports = data;
- }})("Dungeon1_final_with_portals",
 { "compressionlevel":-1,
  "height":24,
  "infinite":true,
@@ -38,10 +28,10 @@
                 }, 
                 {
                  "data":[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-                    0, 70, 0, 70, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
                     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
                     0, 0, 0, 0, 0, 0, 1751, 1751, 0, 0, 0, 0, 0, 0, 0, 0,
-                    70, 0, 0, 0, 0, 0, 1751, 1751, 1751, 0, 0, 0, 0, 0, 0, 0,
+                    0, 0, 0, 0, 0, 0, 1751, 1751, 1751, 0, 0, 0, 0, 0, 0, 0,
                     0, 0, 0, 1751, 1751, 1751, 1751, 1750, 1751, 0, 0, 0, 0, 0, 0, 0,
                     0, 0, 0, 1751, 1751, 1751, 1751, 1751, 1751, 1751, 1751, 1751, 1751, 0, 0, 0,
                     0, 0, 0, 1751, 1751, 1751, 1751, 1751, 1751, 1751, 1751, 1751, 1751, 1751, 1751, 1751,
@@ -131,7 +121,7 @@
                     1751, 1751, 1751, 1751, 1747, 1751, 1751, 1751, 1751, 627, 625, 627, 627, 627, 0, 0,
                     1751, 1751, 1751, 1751, 1751, 0, 0, 1751, 1751, 627, 627, 608, 627, 627, 0, 0,
                     1751, 1750, 1751, 0, 0, 0, 0, 0, 0, 627, 627, 627, 627, 627, 627, 0,
-                    1751, 1751, 1751, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 627, 10, 0,
+                    1751, 1751, 1751, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 627, 0, 0,
                     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
                     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
                     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
@@ -2314,120 +2304,253 @@
         }, 
         {
          "draworder":"topdown",
-         "id":35,
+         "id":36,
          "name":"logic_objects",
          "objects":[
                 {
-                 "height":16,
+                 "height":0,
                  "id":1,
                  "name":"PlayerSpawn",
                  "rotation":0,
-                 "type":"spawn",
+                 "type":"",
                  "visible":true,
-                 "width":16,
-                 "x":227,
-                 "y":11
+                 "width":0,
+                 "x":-259.92829485157,
+                 "y":24.9648644772695
                 }, 
                 {
-                 "height":16,
+                 "height":0,
                  "id":2,
-                 "name":"PortalToNextLevel",
+                 "name":"PortalA",
+                 "properties":[
+                        {
+                         "name":"target",
+                         "type":"string",
+                         "value":"B"
+                        }],
                  "rotation":0,
-                 "type":"exit",
+                 "type":"portal",
                  "visible":true,
-                 "width":16,
-                 "x":248,
-                 "y":252
+                 "width":0,
+                 "x":-33.7759931163058,
+                 "y":11.748171518715
                 }, 
                 {
-                 "height":16,
+                 "height":0,
                  "id":3,
-                 "name":"Enemy1",
+                 "name":"PortalB",
+                 "properties":[
+                        {
+                         "name":"target",
+                         "type":"string",
+                         "value":"A"
+                        }],
                  "rotation":0,
-                 "type":"enemy",
+                 "type":"portal",
                  "visible":true,
-                 "width":16,
-                 "x":117,
-                 "y":112
+                 "width":0,
+                 "x":-255.522730532052,
+                 "y":130.698408145705
                 }, 
                 {
-                 "height":16,
+                 "height":0,
                  "id":4,
-                 "name":"Enemy2",
+                 "name":"PortalC",
+                 "properties":[
+                        {
+                         "name":"target",
+                         "type":"string",
+                         "value":"D"
+                        }],
                  "rotation":0,
-                 "type":"enemy",
+                 "type":"portal",
                  "visible":true,
-                 "width":16,
-                 "x":-274,
-                 "y":333
+                 "width":0,
+                 "x":96.9224150293991,
+                 "y":-44.0556431951814
                 }, 
                 {
-                 "height":16,
+                 "height":0,
                  "id":5,
-                 "name":"Portal1",
+                 "name":"PortalD",
                  "properties":[
                         {
                          "name":"target",
                          "type":"string",
-                         "value":"2"
+                         "value":"C"
                         }],
                  "rotation":0,
                  "type":"portal",
                  "visible":true,
-                 "width":16,
-                 "x":87,
-                 "y":-56
+                 "width":0,
+                 "x":-176.222572780726,
+                 "y":201.187437257995
                 }, 
                 {
-                 "height":16,
-                 "id":6,
-                 "name":"Portal2",
-                 "properties":[
-                        {
-                         "name":"target",
-                         "type":"string",
-                         "value":"1"
-                        }],
+                 "height":0,
+                 "id":9,
+                 "name":"",
                  "rotation":0,
-                 "type":"portal",
+                 "type":"",
                  "visible":true,
-                 "width":16,
-                 "x":-41,
-                 "y":-8
+                 "width":0,
+                 "x":-46.9926860748602,
+                 "y":277.550552129643
                 }, 
                 {
-                 "height":16,
-                 "id":7,
-                 "name":"Portal3",
-                 "properties":[
-                        {
-                         "name":"target",
-                         "type":"string",
-                         "value":"4"
-                        }],
+                 "height":0,
+                 "id":12,
+                 "name":"",
                  "rotation":0,
-                 "type":"portal",
+                 "type":"bau",
                  "visible":true,
-                 "width":16,
-                 "x":-262,
-                 "y":117
+                 "width":0,
+                 "x":240.837516133658,
+                 "y":-2.93704287967876
                 }, 
                 {
-                 "height":16,
-                 "id":8,
-                 "name":"Portal4",
-                 "properties":[
-                        {
-                         "name":"target",
-                         "type":"string",
-                         "value":"3"
-                        }],
+                 "height":0,
+                 "id":13,
+                 "name":"",
                  "rotation":0,
-                 "type":"portal",
+                 "type":"bau",
                  "visible":true,
-                 "width":16,
-                 "x":-183,
-                 "y":184
+                 "width":0,
+                 "x":129.229886705866,
+                 "y":-17.6222572780726
+                }, 
+                {
+                 "height":0,
+                 "id":14,
+                 "name":"",
+                 "rotation":0,
+                 "type":"bau",
+                 "visible":true,
+                 "width":0,
+                 "x":-209.998565897031,
+                 "y":27.9019073569482
+                }, 
+                {
+                 "height":0,
+                 "id":15,
+                 "name":"",
+                 "rotation":0,
+                 "type":"chave",
+                 "visible":true,
+                 "width":0,
+                 "x":-277.550552129643,
+                 "y":167.411444141689
+                }, 
+                {
+                 "height":0,
+                 "id":16,
+                 "name":"",
+                 "rotation":0,
+                 "type":"bau",
+                 "visible":true,
+                 "width":0,
+                 "x":-46.9926860748602,
+                 "y":207.061523017353
+                }, 
+                {
+                 "height":0,
+                 "id":17,
+                 "name":"",
+                 "rotation":0,
+                 "type":"ouro",
+                 "visible":true,
+                 "width":0,
+                 "x":-79.3001577513266,
+                 "y":207.061523017353
+                }, 
+                {
+                 "height":0,
+                 "id":18,
+                 "name":"",
+                 "rotation":0,
+                 "type":"ouro",
+                 "visible":true,
+                 "width":0,
+                 "x":-69.0205076724509,
+                 "y":237.90047325398
+                }, 
+                {
+                 "height":0,
+                 "id":19,
+                 "name":"",
+                 "rotation":0,
+                 "type":"ouro",
+                 "visible":true,
+                 "width":0,
+                 "x":-45.5241646350208,
+                 "y":229.089344614943
+                }, 
+                {
+                 "height":0,
+                 "id":20,
+                 "name":"",
+                 "rotation":0,
+                 "type":"bau",
+                 "visible":true,
+                 "width":0,
+                 "x":196.781872938477,
+                 "y":345.102538362254
+                }, 
+                {
+                 "height":0,
+                 "id":21,
+                 "name":"",
+                 "rotation":0,
+                 "type":"ouro",
+                 "visible":true,
+                 "width":0,
+                 "x":180.628137100244,
+                 "y":343.634016922415
+                },
+            
+                {
+                 "height":0,
+                 "id":22,
+                 "name":"",
+                 "rotation":0,
+                 "type":"chave",
+                 "visible":true,
+                 "width":0,
+                 "x":165.94292270185,
+                 "y":343.634016922415
+                }, 
+                {
+                 "height":0,
+                 "id":23,
+                 "name":"",
+                 "rotation":0,
+                 "type":"ouro",
+                 "visible":true,
+                 "width":0,
+                 "x":117.48171518715,
+                 "y":-30.838950236627
+                }, 
+                {
+                 "height":0,
+                 "id":24,
+                 "name":"",
+                 "rotation":0,
+                 "type":"ouro",
+                 "visible":true,
+                 "width":0,
+                 "x":101.327979348917,
+                 "y":-22.0278215975907
+                }, 
+                {
+                 "height":0,
+                 "id":25,
+                 "name":"",
+                 "rotation":0,
+                 "type":"ouro",
+                 "visible":true,
+                 "width":0,
+                 "x":74.8945934318084,
+                 "y":-33.7759931163058
                 }],
          "opacity":1,
          "type":"objectgroup",
@@ -2435,8 +2558,8 @@
          "x":0,
          "y":0
         }],
- "nextlayerid":36,
- "nextobjectid":1,
+ "nextlayerid":37,
+ "nextobjectid":26,
  "orientation":"orthogonal",
  "renderorder":"right-down",
  "tiledversion":"1.11.2",
@@ -2445,7 +2568,7 @@
         {
          "columns":8,
          "firstgid":1,
-         "image":"decorative_cracks_walls.png",
+         "image":"..\/tilesets\/decorative_cracks_walls.png",
          "imageheight":512,
          "imagewidth":128,
          "margin":0,
@@ -2458,7 +2581,7 @@
         {
          "columns":8,
          "firstgid":257,
-         "image":"decorative_cracks_floor.png",
+         "image":"..\/tilesets\/decorative_cracks_floor.png",
          "imageheight":240,
          "imagewidth":128,
          "margin":0,
@@ -2471,7 +2594,7 @@
         {
          "columns":17,
          "firstgid":377,
-         "image":"walls_floor.png",
+         "image":"..\/tilesets\/walls_floor.png",
          "imageheight":464,
          "imagewidth":272,
          "margin":0,
@@ -2484,7 +2607,7 @@
         {
          "columns":29,
          "firstgid":870,
-         "image":"Water_coasts_animation.png",
+         "image":"..\/tilesets\/Water_coasts_animation.png",
          "imageheight":512,
          "imagewidth":464,
          "margin":0,
@@ -4097,7 +4220,7 @@
         {
          "columns":37,
          "firstgid":1798,
-         "image":"water_details_animation.png",
+         "image":"..\/tilesets\/water_details_animation.png",
          "imageheight":1248,
          "imagewidth":592,
          "margin":0,
@@ -9498,7 +9621,7 @@
         {
          "columns":19,
          "firstgid":4684,
-         "image":"decorative_cracks_coasts_animation.png",
+         "image":"..\/tilesets\/decorative_cracks_coasts_animation.png",
          "imageheight":400,
          "imagewidth":304,
          "margin":0,
@@ -11083,7 +11206,7 @@
         {
          "columns":11,
          "firstgid":5159,
-         "image":"fire_animation.png",
+         "image":"..\/tilesets\/fire_animation.png",
          "imageheight":288,
          "imagewidth":176,
          "margin":0,
@@ -12023,7 +12146,7 @@
         {
          "columns":6,
          "firstgid":5357,
-         "image":"fire_animation2.png",
+         "image":"..\/tilesets\/fire_animation2.png",
          "imageheight":192,
          "imagewidth":96,
          "margin":0,
@@ -12422,7 +12545,7 @@
         {
          "columns":10,
          "firstgid":5429,
-         "image":"doors_lever_chest_animation.png",
+         "image":"..\/tilesets\/doors_lever_chest_animation.png",
          "imageheight":240,
          "imagewidth":160,
          "margin":0,
@@ -13265,7 +13388,7 @@
         {
          "columns":24,
          "firstgid":5579,
-         "image":"Objects.png",
+         "image":"..\/tilesets\/Objects.png",
          "imageheight":144,
          "imagewidth":384,
          "margin":0,
@@ -13278,7 +13401,7 @@
         {
          "columns":13,
          "firstgid":5795,
-         "image":"trap_animation.png",
+         "image":"..\/tilesets\/trap_animation.png",
          "imageheight":496,
          "imagewidth":208,
          "margin":0,
@@ -14735,4 +14858,4 @@
  "type":"map",
  "version":"1.10",
  "width":16
-});
+}

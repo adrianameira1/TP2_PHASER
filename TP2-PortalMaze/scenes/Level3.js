@@ -4,10 +4,8 @@ export default class Level3 extends Phaser.Scene {
   }
 
   preload() {
-    // Mapa
     this.load.tilemapTiledJSON('nivel3', 'assets/maps/nivel3.json');
 
-    // Tilesets
     this.load.image('cracked_tiles', 'assets/tilesets/cracked_tiles.png');
     this.load.image('cracked_tiles_floor', 'assets/tilesets/cracked_tiles_floor.png');
     this.load.image('walls_floor', 'assets/tilesets/walls_floor.png');
@@ -20,7 +18,6 @@ export default class Level3 extends Phaser.Scene {
     this.load.image('Objects', 'assets/tilesets/Objects.png');
     this.load.image('trap_animation', 'assets/tilesets/trap_animation.png');
 
-    // Sprite do jogador
     this.load.spritesheet('player', 'assets/sprites/player.png', {
       frameWidth: 16,
       frameHeight: 16
@@ -44,13 +41,11 @@ export default class Level3 extends Phaser.Scene {
       map.addTilesetImage('trap_animation', 'trap_animation')
     ];
 
-    // Criar layers (exemplo com 2 principais, podes adicionar mais)
-    map.createLayer('Floor', tilesets);
-    const wallLayer = map.createLayer('Walls', tilesets);
+    map.createLayer('Chão', tilesets);
+    const wallLayer = map.createLayer('Paredes', tilesets);
     wallLayer.setCollisionByProperty({ collides: true });
 
-    // Criar jogador no PlayerSpawn
-    const objects = map.getObjectLayer('logic_objects').objects;
+    const objects = map.getObjectLayer('logic_objects')?.objects || [];
     const spawn = objects.find(obj => obj.name === 'PlayerSpawn');
     this.player = this.physics.add.sprite(spawn.x + 8, spawn.y + 8, 'player');
 
@@ -65,13 +60,11 @@ export default class Level3 extends Phaser.Scene {
       this.physics.add.overlap(this.player, zone, () => {
         const destName = `Portal${this.portals[obj.name].target}`;
         const dest = this.portals[destName];
-        if (dest) {
-          this.player.setPosition(dest.x + 8, dest.y + 8);
-        }
+        if (dest) this.player.setPosition(dest.x + 8, dest.y + 8);
       }, null, this);
     });
 
-    // Verificar portal final
+    // Portal final
     const finalPortal = objects.find(obj => obj.name === 'PortalToNextLevel');
     if (finalPortal) {
       const endZone = this.add.zone(finalPortal.x + 8, finalPortal.y + 8, 16, 16);
@@ -81,32 +74,66 @@ export default class Level3 extends Phaser.Scene {
       });
     }
 
-    // Colisão
     this.physics.add.collider(this.player, wallLayer);
 
-    // Limites da câmara e mundo
     this.cameras.main.startFollow(this.player);
     this.cameras.main.setBounds(0, 0, map.widthInPixels, map.heightInPixels);
     this.physics.world.setBounds(0, 0, map.widthInPixels, map.heightInPixels);
 
-    // Controlo do teclado
     this.cursors = this.input.keyboard.createCursorKeys();
+
+    // HUD e contadores
+    this.contadorMoedas = 0;
+    this.contadorChaves = 0;
+    this.textoMoedas = this.add.text(16, 16, '🪙 Moedas: 0', { fontSize: '12px', fill: '#fff' }).setScrollFactor(0).setDepth(10);
+    this.textoChaves = this.add.text(16, 32, '🔑 Chaves: 0', { fontSize: '12px', fill: '#fff' }).setScrollFactor(0).setDepth(10);
+
+    // OURO
+    this.ouros = this.physics.add.group();
+    objects.filter(o => o.type === 'ouro').forEach(obj => {
+      const sprite = this.ouros.create(obj.x + 8, obj.y + 8, 'Objects');
+      sprite.setDepth(1);
+      this.physics.add.overlap(this.player, sprite, () => {
+        sprite.destroy();
+        this.contadorMoedas++;
+        this.textoMoedas.setText(`🪙 Moedas: ${this.contadorMoedas}`);
+      });
+    });
+
+    // CHAVES
+    this.chaves = this.physics.add.group();
+    objects.filter(o => o.type === 'chave').forEach(obj => {
+      const sprite = this.chaves.create(obj.x + 8, obj.y + 8, 'Objects');
+      sprite.setDepth(1);
+      this.physics.add.overlap(this.player, sprite, () => {
+        sprite.destroy();
+        this.contadorChaves++;
+        this.textoChaves.setText(`🔑 Chaves: ${this.contadorChaves}`);
+      });
+    });
+
+    // BAÚS
+    objects.filter(o => o.type === 'bau').forEach(obj => {
+      const sprite = this.physics.add.sprite(obj.x + 8, obj.y + 8, 'doors_lever_chest_animation');
+      sprite.bauAberto = false;
+      this.physics.add.overlap(this.player, sprite, () => {
+        if (!sprite.bauAberto) {
+          sprite.bauAberto = true;
+          this.contadorMoedas += 10;
+          this.textoMoedas.setText(`🪙 Moedas: ${this.contadorMoedas}`);
+        }
+      });
+    });
   }
 
   update() {
     const speed = 110;
     this.player.setVelocity(0);
 
-    if (this.cursors.left.isDown) {
-      this.player.setVelocityX(-speed);
-    } else if (this.cursors.right.isDown) {
-      this.player.setVelocityX(speed);
-    }
+    if (this.cursors.left.isDown) this.player.setVelocityX(-speed);
+    else if (this.cursors.right.isDown) this.player.setVelocityX(speed);
 
-    if (this.cursors.up.isDown) {
-      this.player.setVelocityY(-speed);
-    } else if (this.cursors.down.isDown) {
-      this.player.setVelocityY(speed);
-    }
+    if (this.cursors.up.isDown) this.player.setVelocityY(-speed);
+    else if (this.cursors.down.isDown) this.player.setVelocityY(speed);
   }
 }

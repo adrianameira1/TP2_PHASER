@@ -5,7 +5,8 @@ import GameScene from './scenes/GameScene.js';
 import Level3 from './scenes/Level3.js'; 
 import Victory from './scenes/Victory.js'; 
 import EndScene from './scenes/EndScene.js';
-import DeathScene from './scenes/DeathScene.js'; // ✅
+import DeathScene from './scenes/DeathScene.js'; 
+import HowToScene from './scenes/HowToScene.js';
 
 const config = {
     type: Phaser.AUTO,
@@ -25,6 +26,7 @@ const config = {
         Level3,
         Victory,
         EndScene,
+        HowToScene,
         DeathScene 
     ]
 };

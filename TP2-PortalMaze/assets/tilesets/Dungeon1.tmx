@@ -1,5 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.10" tiledversion="1.10.2" orientation="orthogonal" renderorder="right-down" width="16" height="24" tilewidth="16" tileheight="16" infinite="1" nextlayerid="35" nextobjectid="1">
+<map version="1.10" tiledversion="1.11.2" orientation="orthogonal" renderorder="right-down" width="16" height="24" tilewidth="16" tileheight="16" infinite="1" nextlayerid="37" nextobjectid="26">
+ <editorsettings>
+  <export target="../maps/nivel3.json" format="json"/>
+ </editorsettings>
  <tileset firstgid="1" name="cracked_tiles" tilewidth="16" tileheight="16" tilecount="256" columns="8">
   <image source="decorative_cracks_walls.png" width="128" height="512"/>
  </tileset>
@@ -6107,4 +6110,42 @@
 </chunk>
   </data>
  </layer>
+ <objectgroup id="36" name="logic_objects">
+  <object id="1" name="PlayerSpawn" x="-259.928" y="24.9649"/>
+  <object id="2" name="PortalA" type="portal" x="-33.776" y="11.7482">
+   <properties>
+    <property name="target" value="B"/>
+   </properties>
+  </object>
+  <object id="3" name="PortalB" type="portal" x="-255.523" y="130.698">
+   <properties>
+    <property name="target" value="A"/>
+   </properties>
+  </object>
+  <object id="4" name="PortalC" type="portal" x="96.9224" y="-44.0556">
+   <properties>
+    <property name="target" value="D"/>
+   </properties>
+  </object>
+  <object id="5" name="PortalD" type="portal" x="-176.223" y="201.187">
+   <properties>
+    <property name="target" value="C"/>
+   </properties>
+  </object>
+  <object id="9" x="-46.9927" y="277.551"/>
+  <object id="12" type="bau" x="240.838" y="-2.93704"/>
+  <object id="13" type="bau" x="129.23" y="-17.6223"/>
+  <object id="14" type="bau" x="-209.999" y="27.9019"/>
+  <object id="15" type="chave" x="-277.551" y="167.411"/>
+  <object id="16" type="bau" x="-46.9927" y="207.062"/>
+  <object id="17" type="ouro" x="-79.3002" y="207.062"/>
+  <object id="18" type="ouro" x="-69.0205" y="237.9"/>
+  <object id="19" type="ouro" x="-45.5242" y="229.089"/>
+  <object id="20" type="bau" x="196.782" y="345.103"/>
+  <object id="21" type="ouro" x="180.628" y="343.634"/>
+  <object id="22" type="chave" x="165.943" y="343.634"/>
+  <object id="23" type="ouro" x="117.482" y="-30.839"/>
+  <object id="24" type="ouro" x="101.328" y="-22.0278"/>
+  <object id="25" type="ouro" x="74.8946" y="-33.776"/>
+ </objectgroup>
 </map>

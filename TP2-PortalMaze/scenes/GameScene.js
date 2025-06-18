@@ -14,7 +14,7 @@ export default class GameScene extends Phaser.Scene {
 
         this.load.tilemapTiledJSON(this.mapKey, mapPath);
 
-        if (this.level === 2) {
+        if (this.level === 2 || this.level === 3) {
             this.load.image('Dungeon_level2', 'assets/tilesets/Dungeon_Tileset.png');
             this.load.spritesheet('peaks', 'assets/tilesets/peaks/peaks.png', { frameWidth: 16, frameHeight: 16 });
             this.load.spritesheet('coin', 'assets/tilesets/coin/coin_spritesheet_16x16.png', { frameWidth: 16, frameHeight: 16 });
@@ -45,7 +45,7 @@ export default class GameScene extends Phaser.Scene {
 
 
 
-        if (this.level === 2) {
+        if (this.level === 2 || this.level === 3) {
             this.anims.create({ key: 'coin', frames: this.anims.generateFrameNumbers('coin', { start: 0, end: 3 }), frameRate: 10, repeat: -1 });
             this.anims.create({ key: 'chest_idle', frames: this.anims.generateFrameNumbers('chest_idle', { start: 0, end: 3 }), frameRate: 8, repeat: -1 });
             this.anims.create({ key: 'chest_open', frames: this.anims.generateFrameNumbers('chest_open', { start: 0, end: 3 }), frameRate: 8, repeat: -1 });
@@ -56,13 +56,14 @@ export default class GameScene extends Phaser.Scene {
             this.anims.create({ key: 'peaks', frames: this.anims.generateFrameNumbers('peaks', { start: 0, end: 3 }), frameRate: 6, repeat: -1 });
         }
 
-        const tileset = this.level === 2
-            ? map.addTilesetImage('Dungeon_level2', 'Dungeon_level2')
-            : [
-                map.addTilesetImage('atlas_floor-16x16', 'tilesetFloor'),
-                map.addTilesetImage('atlas_walls_low-16x16', 'tilesetWallLow'),
-                map.addTilesetImage('atlas_walls_high-16x32', 'tilesetWallHigh')
+        const tileset = (this.level === 2 || this.level === 3)
+        ? map.addTilesetImage('Dungeon_level2', 'Dungeon_level2')
+        : [
+            map.addTilesetImage('atlas_floor-16x16', 'tilesetFloor'),
+            map.addTilesetImage('atlas_walls_low-16x16', 'tilesetWallLow'),
+            map.addTilesetImage('atlas_walls_high-16x32', 'tilesetWallHigh')
             ];
+
 
         const layer1 = map.createLayer('Camada de Blocos 1', tileset, 0, 0);
         const layer2 = map.createLayer('Camada de Blocos 2', tileset, 0, 0);
@@ -71,7 +72,7 @@ export default class GameScene extends Phaser.Scene {
         layer1.setCollisionByExclusion([-1]);
         layer2.setCollisionByExclusion([-1]);
 
-        if (this.level !== 2) {
+        if (this.level !== 2 && this.level !== 3) {
             this.lights.enable();
             this.lights.setAmbientColor(0x111111);
             layer1.setPipeline('Light2D');
@@ -80,13 +81,21 @@ export default class GameScene extends Phaser.Scene {
         }
 
         // POSICIONAMENTO DO PLAYER E PORTAL
-        if (this.level === 2) {
+        if (this.level === 3) {
+            // Player em (1,1)
+            this.player = this.physics.add.sprite(1 * tileSize + tileSize / 2, 1 * tileSize + tileSize / 2, 'player');
+
+            // Portal em (largura - 2 tiles)
+            const portalX = map.widthInPixels - 2 * tileSize + tileSize / 2;
+            this.portal = this.physics.add.sprite(portalX, tileSize / 2, 'portal');
+        } else if (this.level === 2) {
             this.player = this.physics.add.sprite(28 * tileSize + tileSize / 2, 1 * tileSize + tileSize / 2, 'player');
             this.portal = this.physics.add.sprite(1 * tileSize + tileSize / 2, 1 * tileSize + tileSize / 2, 'portal');
         } else {
             this.player = this.physics.add.sprite(1 * tileSize + tileSize / 2, 13 * tileSize + tileSize / 2, 'player');
             this.portal = this.physics.add.sprite(18 * tileSize + tileSize / 2, 1 * tileSize + tileSize / 2, 'portal');
         }
+
 
         this.player.setDisplaySize(this.level === 2 ? tileSize + 6 : tileSize, this.level === 2 ? tileSize + 6 : tileSize);
         this.player.setCollideWorldBounds(true);
@@ -113,7 +122,7 @@ export default class GameScene extends Phaser.Scene {
         this.textoChaves = this.add.text(150, 100, '🔑 Chaves: 0', { fontSize: '12px', fill: '#fff' }).setScrollFactor(0).setDepth(10);
         this.textoMoedas = this.add.text(250, 100, '🪙 Moedas: 0', { fontSize: '12px', fill: '#fff' }).setScrollFactor(0).setDepth(10);
 
-        if (this.level === 2) {
+        if (this.level === 2 || this.level === 3) {
             const objetosLayer = map.getObjectLayer('Objetos');
             if (objetosLayer) {
                 objetosLayer.objects.forEach(obj => {
@@ -155,7 +164,7 @@ export default class GameScene extends Phaser.Scene {
                                 if (!sprite.bauAberto) {
                                     sprite.bauAberto = true;
                                     sprite.play('chest_open');
-                                     this.coinSound.play(); 
+                                    this.coinSound.play(); 
                                     this.contadorMoedas += 30;
                                     this.textoMoedas.setText(`🪙 Moedas: ${this.contadorMoedas}`);
                                     const textoBonus = this.add.text(sprite.x, sprite.y - 10, '+30', {
@@ -179,13 +188,38 @@ export default class GameScene extends Phaser.Scene {
                             sprite = this.add.sprite(posX, posY, 'chest_open').play('chest_open');
                             break;
 
+                        // Vampiros que se movem na vertical no nível 3
                         case 'vampiro1':
                         case 'vampiro2':
+                        case 'vampiro4':
+                        case 'vampiro5':
                             sprite = this.physics.add.sprite(posX, posY, 'vampire').play('vampire');
-                            sprite.setVelocityX(40);
+                            if (this.level === 3) {
+                                sprite.setVelocityY(60);
+                                sprite.setBounce(0, 1);
+                                this.esqueletos.push({ sprite, axis: 'y', direction: 1 });
+                            } else {
+                                sprite.setVelocityX(40);
+                                sprite.setBounce(1, 0);
+                                this.esqueletos.push({ sprite, axis: 'x', direction: 1 });
+                            }
                             sprite.setCollideWorldBounds(true);
+                            sprite.setSize(12, 12).setOffset(2, 2);
+                            this.physics.add.collider(sprite, layer2);
+                            this.physics.add.overlap(this.player, sprite, () => {
+                                this.scene.start('DeathScene', { cause: 'enemy' });
+                            });
+                            break;
+
+                        // Vampiros que se movem na horizontal no nível 3
+                        case 'vampiro3':
+                        case 'vampiro6':
+                        case 'vampiro7':
+                            sprite = this.physics.add.sprite(posX, posY, 'vampire').play('vampire');
+                            sprite.setVelocityX(60);
                             sprite.setBounce(1, 0);
-                            sprite.setSize(12, 12).setOffset(2, 2); //  Hitbox ajustada
+                            sprite.setCollideWorldBounds(true);
+                            sprite.setSize(12, 12).setOffset(2, 2);
                             this.physics.add.collider(sprite, layer2);
                             this.esqueletos.push({ sprite, axis: 'x', direction: 1 });
                             this.physics.add.overlap(this.player, sprite, () => {
@@ -193,55 +227,31 @@ export default class GameScene extends Phaser.Scene {
                             });
                             break;
 
+                        // Esqueletos com movimento horizontal no nível 3
                         case 'esqueleto1':
-                            sprite = this.physics.add.sprite(posX, posY, 'skeleton').play('skeleton');
-                            sprite.setVelocityX(40);
-                            sprite.setCollideWorldBounds(true);
-                            sprite.setBounce(1, 0);
-                            sprite.setSize(12, 12).setOffset(2, 2); //  Hitbox ajustada
-                            this.physics.add.collider(sprite, layer2);
-                            this.esqueletos.push({ sprite, axis: 'x', direction: 1 });
-                            this.physics.add.overlap(this.player, sprite, () => {
-                                this.scene.start('DeathScene', { cause: 'enemy' });
-                            });
-                            break;
-
                         case 'esqueleto2':
-                            sprite = this.physics.add.sprite(posX, posY, 'skeleton').play('skeleton');
-                            sprite.setVelocityX(-40);
-                            sprite.setCollideWorldBounds(true);
-                            sprite.setBounce(1, 0);
-                            sprite.setSize(12, 12).setOffset(2, 2); //  Hitbox ajustada
-                            this.physics.add.collider(sprite, layer2);
-                            this.esqueletos.push({ sprite, axis: 'x', direction: -1 });
-                            this.physics.add.overlap(this.player, sprite, () => {
-                                this.scene.start('DeathScene', { cause: 'enemy' });
-                            });
-                            break;
-
                         case 'esqueleto3':
                             sprite = this.physics.add.sprite(posX, posY, 'skeleton').play('skeleton');
-                            sprite.setVelocityY(40);
+                            sprite.setVelocityX(60);
+                            sprite.setBounce(1, 0);
                             sprite.setCollideWorldBounds(true);
-                            sprite.setBounce(0, 1);
-                            sprite.setSize(12, 12).setOffset(2, 2); //  Hitbox ajustada
+                            sprite.setSize(12, 12).setOffset(2, 2);
                             this.physics.add.collider(sprite, layer2);
-                            this.esqueletos.push({ sprite, axis: 'y', direction: 1 });
+                            this.esqueletos.push({ sprite, axis: 'x', direction: 1 });
                             this.physics.add.overlap(this.player, sprite, () => {
                                 this.scene.start('DeathScene', { cause: 'enemy' });
                             });
                             break;
 
-                            case 'pico':
-                                sprite = this.physics.add.sprite(posX, posY, 'peaks').play('peaks');
-                                sprite.body.setAllowGravity(false);
-                                sprite.body.setImmovable(true);
-                                this.picos.push(sprite);
-                                this.picoTimers.set(sprite, null);
+                        case 'pico':
+                            sprite = this.physics.add.sprite(posX, posY, 'peaks').play('peaks');
+                            sprite.body.setAllowGravity(false);
+                            sprite.body.setImmovable(true);
+                            this.picos.push(sprite);
+                            this.picoTimers.set(sprite, null);
+                            break;
+                    }
 
-                                break;
-
-                            }
 
                     if (sprite) sprite.setDepth(1);
                 });
@@ -330,21 +340,36 @@ export default class GameScene extends Phaser.Scene {
             }
         });
 
-
-        // Movimento dos esqueletos
-        if (this.level === 2 && this.esqueletos) {
+        // Movimento dos inimigos
+        if (this.esqueletos) {
             this.esqueletos.forEach(e => {
-                if (e.axis === 'x') {
-                    if (e.sprite.body.blocked.right) {
-                        e.sprite.setVelocityX(-40);
-                    } else if (e.sprite.body.blocked.left) {
-                        e.sprite.setVelocityX(40);
+                if (this.level === 2) {
+                    if (e.axis === 'x') {
+                        if (e.sprite.body.blocked.right) {
+                            e.sprite.setVelocityX(-40);
+                        } else if (e.sprite.body.blocked.left) {
+                            e.sprite.setVelocityX(40);
+                        }
+                    } else if (e.axis === 'y') {
+                        if (e.sprite.body.blocked.down) {
+                            e.sprite.setVelocityY(-40);
+                        } else if (e.sprite.body.blocked.up) {
+                            e.sprite.setVelocityY(40);
+                        }
                     }
-                } else if (e.axis === 'y') {
-                    if (e.sprite.body.blocked.down) {
-                        e.sprite.setVelocityY(-40);
-                    } else if (e.sprite.body.blocked.up) {
-                        e.sprite.setVelocityY(40);
+                } else if (this.level === 3) {
+                    if (e.axis === 'x') {
+                        if (e.sprite.body.blocked.right) {
+                            e.sprite.setVelocityX(-60);
+                        } else if (e.sprite.body.blocked.left) {
+                            e.sprite.setVelocityX(60);
+                        }
+                    } else if (e.axis === 'y') {
+                        if (e.sprite.body.blocked.down) {
+                            e.sprite.setVelocityY(-60);
+                        } else if (e.sprite.body.blocked.up) {
+                            e.sprite.setVelocityY(60);
+                        }
                     }
                 }
             });

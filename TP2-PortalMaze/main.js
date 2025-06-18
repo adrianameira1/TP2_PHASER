@@ -2,7 +2,6 @@ import BootScene from './scenes/BootScene.js';
 import MenuScene from './scenes/MenuScene.js';
 import LevelIntroScene from './scenes/LevelIntroScene.js';
 import GameScene from './scenes/GameScene.js';
-import Level3 from './scenes/Level3.js'; 
 import Victory from './scenes/Victory.js'; 
 import EndScene from './scenes/EndScene.js';
 import DeathScene from './scenes/DeathScene.js'; 
@@ -23,7 +22,6 @@ const config = {
         MenuScene,
         LevelIntroScene,
         GameScene,
-        Level3,
         Victory,
         EndScene,
         HowToScene,

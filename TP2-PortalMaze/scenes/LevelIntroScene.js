@@ -54,17 +54,14 @@ export default class LevelIntroScene extends Phaser.Scene {
         okButton.on('pointerout', () => okButton.setScale(baseScale));
 
        okButton.on('pointerdown', () => {
-            
+
             if (!this.sound.get('musicaFundo')) {
                 this.sound.add('musicaFundo', { loop: true, volume: 0.5 }).play();
             }
 
-            if (this.level === 3) {
-                this.scene.start('level3');
-            } else {
-                this.scene.start('GameScene', { level: this.level });
-            }
+            this.scene.start('GameScene', { level: this.level });
         });
+
 
     }
 }

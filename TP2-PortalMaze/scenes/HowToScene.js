@@ -5,7 +5,7 @@ export default class HowToScene extends Phaser.Scene {
 
   preload() {
     this.load.image('howto_bg', 'assets/images/menu_bg.png');
-    this.load.image('howto_rules', 'assets/rules/rules_howto_main.png'); // nova imagem com texto que vamos criar
+    this.load.image('howto_rules', 'assets/rules/rules_howto_main.png'); 
     this.load.image('okButton', 'assets/buttons/ok_button.png');
   }
 

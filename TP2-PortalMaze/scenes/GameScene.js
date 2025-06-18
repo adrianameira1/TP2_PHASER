@@ -262,15 +262,22 @@ export default class GameScene extends Phaser.Scene {
             
         }
 
-       this.physics.add.overlap(this.player, this.portal, () => {
+      this.physics.add.overlap(this.player, this.portal, () => {
             const moedasRestantes = this.moedas.countActive(true);
             if (moedasRestantes === 0) {
                 const nextLevel = this.level + 1;
-                fetch(`assets/maps/nivel${nextLevel}.json`)
-                    .then(res => res.ok ? this.scene.start('LevelIntroScene', { level: nextLevel }) : this.scene.start('EndScene'))
-                    .catch(() => this.scene.start('EndScene'));
+
+                if (nextLevel === 3) {
+                    this.scene.start('LevelIntroScene', { level: 3 }); // Vai mostrar o how-to-play do level 3
+                } else {
+                    fetch(`assets/maps/nivel${nextLevel}.json`)
+                        .then(res => res.ok ? this.scene.start('LevelIntroScene', { level: nextLevel }) : this.scene.start('EndScene'))
+                        .catch(() => this.scene.start('EndScene'));
+                }
             }
         });
+
+
 
 
 

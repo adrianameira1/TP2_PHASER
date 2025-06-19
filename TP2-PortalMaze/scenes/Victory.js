@@ -4,33 +4,32 @@ export default class Victory extends Phaser.Scene {
   }
 
   preload() {
-    this.load.image('victory_bg', 'assets/images/victory_background.png'); // substitui pela imagem certa
+    this.load.image('victory_bg', 'assets/images/menu_bg.png');
+    this.load.image('ok_button', 'assets/buttons/ok_button.png');
+    this.load.image('victory_title', 'assets/images/victory_title.png');
   }
 
   create() {
-    // Fundo
-    this.add.image(this.cameras.main.centerX, this.cameras.main.centerY, 'victory_bg').setOrigin(0.5);
+    const centerX = this.cameras.main.centerX;
+    const centerY = this.cameras.main.centerY;
 
-    // Texto de parabéns
-    const style = { font: '32px serif', fill: '#ffffff' };
-    this.add.text(this.cameras.main.centerX, 80, 'Parabéns! Concluíste o jogo!', style).setOrigin(0.5);
+    // Fundo do menu
+    this.add.image(centerX, centerY, 'victory_bg')
+      .setDisplaySize(this.cameras.main.width, this.cameras.main.height)
+      .setOrigin(0.5);
 
-    // Botão: Jogar de Novo
-    const restartButton = this.add.text(this.cameras.main.centerX, 200, '🔁 Jogar de Novo', style)
+    // Imagem central de "Victory" com margem maior
+    this.add.image(centerX, centerY - 150, 'victory_title')
       .setOrigin(0.5)
-      .setInteractive()
-      .on('pointerdown', () => this.scene.start('GameScene'));
+      .setScale(1);
 
-    // Botão: Voltar ao Menu
-    const menuButton = this.add.text(this.cameras.main.centerX, 260, '🏠 Menu Principal', style)
-      .setOrigin(0.5)
+    // Botão: OK → volta para o menu principal
+    const ok = this.add.image(centerX, centerY + 120, 'ok_button')
       .setInteractive()
-      .on('pointerdown', () => this.scene.start('MenuScene'));
+      .setScale(0.6);
 
-    // Botão: Sair (encerra o jogo, pode ser apenas refresh ou reload do site)
-    const exitButton = this.add.text(this.cameras.main.centerX, 320, '🚪 Sair', style)
-      .setOrigin(0.5)
-      .setInteractive()
-      .on('pointerdown', () => window.location.reload());
+    ok.on('pointerover', () => ok.setScale(0.65));
+    ok.on('pointerout', () => ok.setScale(0.6));
+    ok.on('pointerdown', () => this.scene.start('MenuScene'));
   }
 }

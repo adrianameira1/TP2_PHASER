@@ -117,13 +117,30 @@ export default class GameScene extends Phaser.Scene {
         this.contadorMoedas = 0;
         this.esqueletos = [];
         this.picos = [];
-        this.picoTimers = new Map(); // [MODIFICAÇÃO]
+        this.picoTimers = new Map();
 
         this.textoChaves = this.add.text(150, 100, '🔑 Chaves: 0', { fontSize: '12px', fill: '#fff' }).setScrollFactor(0).setDepth(10);
         this.textoMoedas = this.add.text(250, 100, '🪙 Moedas: 0', { fontSize: '12px', fill: '#fff' }).setScrollFactor(0).setDepth(10);
 
         if (this.level === 2 || this.level === 3) {
             const objetosLayer = map.getObjectLayer('Objetos');
+            
+            let portasCoords = {};
+            if (this.level === 2) {
+                portasCoords = {
+                    'chave_prata1': [{ x: 19, y: 20 }, { x: 19, y: 21 }],
+                    'chave_prata2': [{ x: 2, y: 18 }, { x: 3, y: 18 }],
+                    'chave_prata3': [{ x: 8, y: 11 }, { x: 8, y: 12 }],
+                    'chave_dourada': [{ x: 10, y: 7 }, { x: 11, y: 7 }]
+                };
+            } else if (this.level === 3) {
+                portasCoords = {
+                    'chave_prata1': [{ x: 2, y: 7 }, { x: 3, y: 7 }],
+                    'chave_prata2': [{ x: 22, y: 14 }, { x: 22, y: 15 }],
+                    'chave_prata3': [{ x: 18, y: 7 }, { x: 19, y: 7 }],
+                    'chave_dourada': [{ x: 30, y: 9 }, { x: 31, y: 9 }]
+                };
+            }
             if (objetosLayer) {
                 objetosLayer.objects.forEach(obj => {
                     const { name, x, y } = obj;
@@ -131,24 +148,33 @@ export default class GameScene extends Phaser.Scene {
                     const posY = y - tileSize / 2;
                     let sprite;
 
-                    const portasCoords = {
-                        'chave_prata1': [{ x: 19, y: 20 }, { x: 19, y: 21 }],
-                        'chave_prata2': [{ x: 2, y: 18 }, { x: 3, y: 18 }],
-                        'chave_prata3': [{ x: 8, y: 11 }, { x: 8, y: 12 }],
-                        'chave_dourada': [{ x: 10, y: 7 }, { x: 11, y: 7 }]
-                    };
+                   if (portasCoords[name]) {
+                        sprite = this.physics.add.sprite(posX, posY, name.includes('prata') ? 'silver_key' : 'key')
+                            .play(name.includes('prata') ? 'silver_key' : 'key');
+                        sprite.setDepth(1);
 
-                    if (portasCoords[name]) {
-                        sprite = this.physics.add.sprite(posX, posY, name.includes('prata') ? 'silver_key' : 'key').play(name.includes('prata') ? 'silver_key' : 'key');
                         this.physics.add.overlap(this.player, sprite, () => {
+                            console.log('✅ Chave apanhada:', name); // ← ADICIONA ISTO
+                            console.log('🔓 Portas a remover:', portasCoords[name]);
+
                             sprite.destroy();
                             this.contadorChaves++;
                             this.textoChaves.setText(`🔑 Chaves: ${this.contadorChaves}`);
-                            portasCoords[name].forEach(coord => layer2.removeTileAt(coord.x, coord.y));
+                            portasCoords[name].forEach(coord => {
+                            const tile = layer2.getTileAt(coord.x, coord.y);
+                            console.log(`⛏️ Verificando tile em (${coord.x}, ${coord.y}):`, tile);
+                            if (tile) {
+                                layer2.removeTileAt(coord.x, coord.y);
+                                console.log(`✅ Tile removido em (${coord.x}, ${coord.y})`);
+                            } else {
+                                console.warn(`⚠️ Nenhum tile encontrado em (${coord.x}, ${coord.y})`);
+                            }
+                            });
+
                         });
-                        sprite.setDepth(1);
                         return;
                     }
+
 
                     switch (name) {
                         case 'moeda':
